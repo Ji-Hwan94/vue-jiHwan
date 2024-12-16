@@ -16,9 +16,9 @@ const searchEndDate = ref('');
 
 const handlerSearch = () => {
     const query = [];
-    !keyword.value || query.push(`searchTite=${keyword.value}`);
-    !searchStartDate.value || query.push(`searchStartDate=${searchStartDate.value}`);
-    !searchEndDate.value || query.push(`searchEndDate=${searchEndDate.value}`);
+    !keyword.value || query.push(`searchTitle=${keyword.value}`);
+    !searchStartDate.value || query.push(`searchStDate=${searchStartDate.value}`);
+    !searchEndDate.value || query.push(`searchEdDate=${searchEndDate.value}`);
     const queryString = query.length > 0 ? `?${query.join('&')}` : '';
 
     router.push(queryString);
