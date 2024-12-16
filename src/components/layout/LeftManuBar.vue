@@ -13,8 +13,8 @@
         <li v-for="menu in userInfo.user.usrMnuAtrt" :key="menu.grp_num" class="parent-menu">
             {{ menu.mnu_nm }}
             <div class="child-menu-box" @click="handlerClick(menu.mnu_id, $event)" :id="menu.mnu_id">
-                <template v-for="node in menu.nodeList" :key="node.mnu_id">
-                    <router-link :to="'/vue' + node.mnu_url" class="router-link" replace>
+                <template v-for="node in menu.nodeList" :key="$route.fullPath">
+                    <router-link :to="'/vue' + node.mnu_url" class="router-link">
                         <div
                             class="child-menu-link"
                             :id="node.mnu_id"
@@ -30,23 +30,23 @@
 </template>
 
 <script setup>
-import { useUserInfo } from "@/stores/userInfo";
-import logo from "../../assets/logo.png";
-import vue_logo from "../../assets/vue_logo.png";
+import { useUserInfo } from '@/stores/userInfo';
+import logo from '../../assets/logo.png';
+import vue_logo from '../../assets/vue_logo.png';
 
 const userInfo = useUserInfo();
 const router = useRouter();
 
 const handlerClick = (menuId, e) => {
     const childMenuId = document.getElementById(menuId);
-    const childMenuClass = document.getElementsByClassName("child-menu-box");
+    const childMenuClass = document.getElementsByClassName('child-menu-box');
     Array.from(childMenuClass).forEach((childMenu) => {
-        childMenu.classList.remove("active");
+        childMenu.classList.remove('active');
     });
 
     if (e) {
         if (e.currentTarget.id === menuId) {
-            childMenuId?.classList.toggle("active");
+            childMenuId?.classList.toggle('active');
         } else {
             childMenuId?.classList.remove();
         }
@@ -55,21 +55,21 @@ const handlerClick = (menuId, e) => {
 
 const handlerMenuLinkClick = (menuId, e) => {
     const childLinkId = document.getElementById(menuId);
-    const childLinkClass = document.getElementsByClassName("child-menu-link");
+    const childLinkClass = document.getElementsByClassName('child-menu-link');
     Array.from(childLinkClass).forEach((childLink) => {
-        childLink.classList.remove("active-link");
+        childLink.classList.remove('active-link');
     });
 
     if (e.currentTarget.id === menuId) {
-        childLinkId?.classList.toggle("active-link");
+        childLinkId?.classList.toggle('active-link');
     } else {
         childLinkId?.classList.remove();
     }
 };
 
 const handlerLogout = () => {
-    sessionStorage.setItem("userInfo", "");
-    router.push("/");
+    sessionStorage.setItem('userInfo', '');
+    router.replace('/');
 };
 </script>
 

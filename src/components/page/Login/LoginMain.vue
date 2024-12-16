@@ -60,7 +60,7 @@ const handlerLogin = async () => {
     const param = new URLSearchParams(loginInfo.value);
     const result = await userInfo.setUserData(param);
     if (result === 'SUCCESS') {
-        router.push('/vue');
+        router.replace('vue');
     } else {
         alert('아이디 혹은 비밀번호가 일치하지 않아요');
         return;

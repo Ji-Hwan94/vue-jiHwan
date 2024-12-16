@@ -54,7 +54,7 @@ const route = useRoute();
 const noticeList = ref();
 const cPage = ref(1);
 
-const searchList = () => {
+const searchList = async () => {
     const param = new URLSearchParams({
         searchTitle: route.query.searchTitle || '',
         searchStDate: route.query.searchStDate || '',
@@ -65,11 +65,18 @@ const searchList = () => {
     axios.post('/api/board/noticeListJson.do', param).then((res) => {
         noticeList.value = res.data;
     });
+    nextTick();
 };
-
 watch(route, searchList);
+// watch(route, () => console.log('route', route));
 
-onMounted(() => {
+// onMounted(() => {
+//     searchList();
+// });
+
+onBeforeMount(() => {
+    console.log('onBeforeMount 실행됨');
+    console.log(window.history);
     searchList();
 });
 </script>
