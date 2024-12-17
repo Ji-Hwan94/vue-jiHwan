@@ -1,6 +1,12 @@
 <template>
     <div class="divNoticeList">
-        현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt }}
+        <NoticeModal
+            v-if="modalState.modalState"
+            @postSuccess="searchList"
+            @modalClose="() => (noticeIdx = 0)"
+            :idx="noticeIdx"
+        />
+        현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt || 0 }}
         <table>
             <colgroup>
                 <col width="10%" />
@@ -20,7 +26,11 @@
             <tbody>
                 <template v-if="noticeList">
                     <template v-if="noticeList.noticeCnt > 0">
-                        <tr v-for="notice in noticeList.notice" :key="notice.noticeIdx">
+                        <tr
+                            v-for="notice in noticeList.notice"
+                            :key="notice.noticeIdx"
+                            @click="handlerModal(notice.noticeIdx)"
+                        >
                             <td>{{ notice.noticeIdx }}</td>
                             <td>{{ notice.title }}</td>
                             <td>{{ notice.createdDate.substr(0, 10) }}</td>
@@ -49,10 +59,13 @@
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import Pagination from '../../../common/Pagination.vue';
+import { useModalStore } from '@/stores/modalState';
 
 const route = useRoute();
 const noticeList = ref();
 const cPage = ref(1);
+const modalState = useModalStore();
+const noticeIdx = ref(0);
 
 const searchList = async () => {
     const param = new URLSearchParams({
@@ -62,21 +75,19 @@ const searchList = async () => {
         currentPage: cPage.value,
         pageSize: 5,
     });
-    axios.post('/api/board/noticeListJson.do', param).then((res) => {
+    await axios.post('/api/board/noticeListJson.do', param).then((res) => {
         noticeList.value = res.data;
     });
-    nextTick();
 };
+
+const handlerModal = (idx) => {
+    noticeIdx.value = idx;
+    modalState.setModalState();
+};
+
 watch(route, searchList);
-// watch(route, () => console.log('route', route));
 
-// onMounted(() => {
-//     searchList();
-// });
-
-onBeforeMount(() => {
-    console.log('onBeforeMount 실행됨');
-    console.log(window.history);
+onMounted(() => {
     searchList();
 });
 </script>

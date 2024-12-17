@@ -4,12 +4,14 @@
         <input type="date" v-model="searchStartDate" />
         <input type="date" v-model="searchEndDate" />
         <button @click="handlerSearch">검색</button>
-        <button>신규등록</button>
+        <button @click="() => modalState.setModalState()">신규등록</button>
     </div>
 </template>
 <script setup>
 import router from '@/router';
+import { useModalStore } from '@/stores/modalState';
 
+const modalState = useModalStore();
 const keyword = ref('');
 const searchStartDate = ref('');
 const searchEndDate = ref('');

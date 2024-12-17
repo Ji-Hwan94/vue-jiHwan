@@ -2,10 +2,10 @@
     <teleport to="body">
         <div class="backdrop">
             <div class="container">
-                <label> 제목 :<input type="text" /> </label>
+                <label> 제목 :<input type="text" v-model="noticeDetail.title" /> </label>
                 <label>
                     내용 :
-                    <input type="text" />
+                    <input type="text" v-model="noticeDetail.content" />
                 </label>
                 파일 :<input type="file" style="display: none" id="fileInput" />
                 <label class="img-label" htmlFor="fileInput"> 파일 첨부하기 </label>
@@ -13,15 +13,75 @@
                     <label>파일명</label>
                 </div>
                 <div class="button-box">
-                    <button>삭제</button>
-                    <button>나가기</button>
+                    <button @click="props.idx ? handlerUpdateBtn() : handlerSaveBtn()">
+                        {{ props.idx ? '수정' : '저장' }}
+                    </button>
+                    <button v-if="props.idx">삭제</button>
+                    <button @click="handlerModal">나가기</button>
                 </div>
             </div>
         </div>
     </teleport>
 </template>
 
-<script setup></script>
+<script setup>
+import { useModalStore } from '@/stores/modalState';
+import { useUserInfo } from '@/stores/userInfo';
+import axios from 'axios';
+
+const emit = defineEmits(['postSuccess', 'modalClose']);
+const props = defineProps(['idx']);
+
+const modalState = useModalStore();
+const userInfo = useUserInfo();
+const noticeDetail = ref({});
+
+const handlerModal = () => {
+    modalState.setModalState();
+};
+
+const handlerSaveBtn = () => {
+    const textData = {
+        ...noticeDetail.value,
+        loginId: userInfo.user.loginId,
+        context: noticeDetail.value.content,
+    };
+    axios.post('/api/board/noticeSaveBody.do', textData).then((res) => {
+        if (res.data.result === 'success') {
+            modalState.setModalState();
+            emit('postSuccess');
+        }
+    });
+};
+
+const searchDetail = () => {
+    axios.post('/api/board/noticeDetailBody.do', { noticeSeq: props.idx }).then((res) => {
+        noticeDetail.value = res.data.detail;
+    });
+};
+
+const handlerUpdateBtn = () => {
+    const textData = {
+        title: noticeDetail.value.title,
+        context: noticeDetail.value.content,
+        noticeSeq: props.idx,
+    };
+    axios.post('/api/board/noticeUpdateBody.do', textData).then((res) => {
+        if (res.data.result === 'success') {
+            modalState.setModalState();
+            emit('postSuccess');
+        }
+    });
+};
+
+onMounted(() => {
+    props.idx && searchDetail();
+});
+
+onUnmounted(() => {
+    emit('modalClose');
+});
+</script>
 
 <style lang="scss" scoped>
 .backdrop {
