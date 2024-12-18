@@ -35,6 +35,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserInfo } from '@/stores/userInfo';
+import { useNoticeDetailUpdateMutation } from '../../../../hook/notice/useNoticeDetailUpdateMutation';
 
 const { params } = useRoute();
 const detailValue = ref({});
@@ -71,20 +72,22 @@ const apiSuccess = () => {
     });
 };
 
-const updateNoticeDetail = async () => {
-    const textData = {
-        ...detailValue.value,
-        noticeSeq: params.idx,
-        context: detailValue.value.content,
-    };
-    await axios.post('/api/board/noticeUpdateBody.do', textData);
-};
+// const updateNoticeDetail = async () => {
+//     const textData = {
+//         ...detailValue.value,
+//         noticeSeq: params.idx,
+//         context: detailValue.value.content,
+//     };
+//     await axios.post('/api/board/noticeUpdateBody.do', textData);
+// };
 
-const { mutate: handlerUpdateBtn } = useMutation({
-    mutationFn: updateNoticeDetail,
-    onSuccess: apiSuccess,
-    mutationKey: ['noticeUpdate'],
-});
+// const { mutate: handlerUpdateBtn } = useMutation({
+//     mutationFn: updateNoticeDetail,
+//     onSuccess: apiSuccess,
+//     mutationKey: ['noticeUpdate'],
+// });
+
+const { mutate: handlerUpdateBtn } = useNoticeDetailUpdateMutation(detailValue, params.idx);
 
 const insertNoticeDetail = async () => {
     const textData = {
