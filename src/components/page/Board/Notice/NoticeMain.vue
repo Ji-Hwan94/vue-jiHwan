@@ -51,46 +51,15 @@
 </template>
 
 <script setup>
-import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import Pagination from '../../../common/Pagination.vue';
-import { useModalStore } from '@/stores/modalState';
-import { useQuery } from '@tanstack/vue-query';
+import { useNoticeListSearchQuery } from '../../../../hook/notice/useNoticeListSearchQuery';
 
-const route = useRoute();
 const router = useRouter();
-// const noticeList = ref();
 const cPage = ref(1);
-const modalState = useModalStore();
-const noticeIdx = ref(0);
 const injectedValue = inject('providedValue');
 
-watch(injectedValue, () => {
-    console.log(injectedValue.value);
-});
-
-const searchList = async () => {
-    const param = new URLSearchParams({
-        ...injectedValue.value,
-        currentPage: cPage.value,
-        pageSize: 5,
-    });
-    const result = await axios.post('/api/board/noticeListJson.do', param);
-
-    return result.data;
-};
-
-const {
-    data: noticeList,
-    isLoading,
-    refetch,
-    isSuccess,
-    isError,
-} = useQuery({
-    queryKey: ['noticeList', injectedValue, cPage],
-    queryFn: searchList,
-    staleTime: 1000 * 60,
-});
+const { data: noticeList, isLoading, refetch, isSuccess } = useNoticeListSearchQuery(injectedValue, cPage);
 
 const handlerDetail = (param) => {
     router.push({
@@ -98,8 +67,6 @@ const handlerDetail = (param) => {
         params: { idx: param },
     });
 };
-
-// watch([injectedValue, cPage], refetch);
 </script>
 
 <style lang="scss" scoped>

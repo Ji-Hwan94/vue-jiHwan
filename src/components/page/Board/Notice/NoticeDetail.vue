@@ -20,8 +20,10 @@
                 </div> -->
             </div>
             <div class="button-box">
-                <button @click="handlerUpdateBtn">수정</button>
-                <button>삭제</button>
+                <button @click="params.idx ? handlerUpdateBtn() : handlerInsertBtn()">
+                    {{ params.idx ? '수정' : '저장' }}
+                </button>
+                <button v-if="params.idx" @click="handlerDeleteBtn">삭제</button>
                 <button @click="$router.go(-1)">뒤로가기</button>
             </div>
         </div>
@@ -29,12 +31,16 @@
 </template>
 
 <script setup>
-import { useQuery } from '@tanstack/vue-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import axios from 'axios';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { useUserInfo } from '@/stores/userInfo';
 
 const { params } = useRoute();
 const detailValue = ref({});
+const router = useRouter();
+const queryClient = useQueryClient();
+const userInfo = useUserInfo();
 
 const searchDetail = async () => {
     const result = await axios.post('/api/board/noticeDetailBody.do', { noticeSeq: params.idx });
@@ -48,6 +54,7 @@ const {
 } = useQuery({
     queryKey: ['noticeDetail'],
     queryFn: searchDetail,
+    enabled: !!params.idx,
 });
 
 watchEffect(() => {
@@ -56,30 +63,53 @@ watchEffect(() => {
     }
 });
 
-const handlerUpdateBtn = () => {
-    const textData = {
-        title: noticeDetail.value.detail.title,
-        content: noticeDetail.value.detail.content,
-        noticeSeq: params.idx,
-    };
-    console.log(detailValue.value);
-
-    // const formData = new FormData();
-    // if (fileData.value) formData.append('file', fileData.value);
-    // formData.append(
-    //     'text',
-    //     new Blob([JSON.stringify(textData)], {
-    //         type: 'application/json',
-    //     })
-    // );
-
-    // axios.post('/api/board/noticeUpdateFileForm.do', formData).then((res) => {
-    //     if (res.data.result === 'success') {
-    //         modalState.setModalState();
-    //         emit('postSuccess');
-    //     }
-    // });
+const apiSuccess = () => {
+    alert('post 성공');
+    router.go(-1);
+    queryClient.invalidateQueries({
+        queryKey: ['noticeList'],
+    });
 };
+
+const updateNoticeDetail = async () => {
+    const textData = {
+        ...detailValue.value,
+        noticeSeq: params.idx,
+        context: detailValue.value.content,
+    };
+    await axios.post('/api/board/noticeUpdateBody.do', textData);
+};
+
+const { mutate: handlerUpdateBtn } = useMutation({
+    mutationFn: updateNoticeDetail,
+    onSuccess: apiSuccess,
+    mutationKey: ['noticeUpdate'],
+});
+
+const insertNoticeDetail = async () => {
+    const textData = {
+        title: detailValue.value.title,
+        context: detailValue.value.content,
+        loginId: userInfo.user.loginId,
+    };
+    await axios.post('/api/board/noticeSaveBody.do', textData);
+};
+
+const { mutate: handlerInsertBtn } = useMutation({
+    mutationFn: insertNoticeDetail,
+    onSuccess: apiSuccess,
+    mutationKey: ['noticeInsert'],
+});
+
+const deleteNoticeDetail = async () => {
+    await axios.post('/api/board/noticeDeleteBody.do', { noticeSeq: params.idx });
+};
+
+const { mutate: handlerDeleteBtn } = useMutation({
+    mutationFn: deleteNoticeDetail,
+    onSuccess: apiSuccess,
+    mutationKey: ['noticeDelete'],
+});
 </script>
 
 <style lang="scss" scoped>
