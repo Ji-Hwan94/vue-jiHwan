@@ -8,10 +8,16 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ContextBox: typeof import('./src/components/common/ContextBox.vue')['default']
+    copy: typeof import('./src/components/page/Board/Notice/NoticeSearch copy.vue')['default']
+    FristNoticeMain: typeof import('./src/components/page/Board/Notice/FristNoticeMain.vue')['default']
+    FristNoticeModal: typeof import('./src/components/page/Board/Notice/FristNoticeModal.vue')['default']
+    FristNoticeSearch: typeof import('./src/components/page/Board/Notice/FristNoticeSearch.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     LeftManuBar: typeof import('./src/components/layout/LeftManuBar.vue')['default']
     LoginMain: typeof import('./src/components/page/Login/LoginMain.vue')['default']
+    NoticeDetail: typeof import('./src/components/page/Board/Notice/NoticeDetail.vue')['default']
     NoticeMain: typeof import('./src/components/page/Board/Notice/NoticeMain.vue')['default']
+    NoticeMain2: typeof import('./src/components/page/Board/Notice/NoticeMain2.vue')['default']
     NoticeModal: typeof import('./src/components/page/Board/Notice/NoticeModal.vue')['default']
     NoticeSearch: typeof import('./src/components/page/Board/Notice/NoticeSearch.vue')['default']
     Pagination: typeof import('./src/components/common/Pagination.vue')['default']

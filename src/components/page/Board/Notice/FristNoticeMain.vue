@@ -1,5 +1,11 @@
 <template>
     <div class="divNoticeList">
+        <NoticeModal
+            v-if="modalState.modalState"
+            @postSuccess="searchList"
+            @modalClose="() => (noticeIdx = 0)"
+            :idx="noticeIdx"
+        />
         현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt || 0 }}
         <table>
             <colgroup>
@@ -18,13 +24,12 @@
                 </tr>
             </thead>
             <tbody>
-                <template v-if="isLoading">...로딩중</template>
-                <template v-if="isSuccess">
+                <template v-if="noticeList">
                     <template v-if="noticeList.noticeCnt > 0">
                         <tr
                             v-for="notice in noticeList.notice"
                             :key="notice.noticeIdx"
-                            @click="handlerDetail(notice.noticeIdx)"
+                            @click="handlerModal(notice.noticeIdx)"
                         >
                             <td>{{ notice.noticeIdx }}</td>
                             <td>{{ notice.title }}</td>
@@ -52,54 +57,39 @@
 
 <script setup>
 import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import Pagination from '../../../common/Pagination.vue';
 import { useModalStore } from '@/stores/modalState';
-import { useQuery } from '@tanstack/vue-query';
 
 const route = useRoute();
-const router = useRouter();
-// const noticeList = ref();
+const noticeList = ref();
 const cPage = ref(1);
 const modalState = useModalStore();
 const noticeIdx = ref(0);
-const injectedValue = inject('providedValue');
-
-watch(injectedValue, () => {
-    console.log(injectedValue.value);
-});
 
 const searchList = async () => {
     const param = new URLSearchParams({
-        ...injectedValue.value,
+        searchTitle: route.query.searchTitle || '',
+        searchStDate: route.query.searchStDate || '',
+        searchEdDate: route.query.searchEdDate || '',
         currentPage: cPage.value,
         pageSize: 5,
     });
-    const result = await axios.post('/api/board/noticeListJson.do', param);
-
-    return result.data;
-};
-
-const {
-    data: noticeList,
-    isLoading,
-    refetch,
-    isSuccess,
-    isError,
-} = useQuery({
-    queryKey: ['noticeList', injectedValue, cPage],
-    queryFn: searchList,
-    staleTime: 1000 * 60,
-});
-
-const handlerDetail = (param) => {
-    router.push({
-        name: 'noticeDetail',
-        params: { idx: param },
+    await axios.post('/api/board/noticeListJson.do', param).then((res) => {
+        noticeList.value = res.data;
     });
 };
 
-// watch([injectedValue, cPage], refetch);
+const handlerModal = (idx) => {
+    noticeIdx.value = idx;
+    modalState.setModalState();
+};
+
+watch(route, searchList);
+
+onMounted(() => {
+    searchList();
+});
 </script>
 
 <style lang="scss" scoped>

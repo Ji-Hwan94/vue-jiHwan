@@ -1,19 +1,31 @@
 <template>
     <div class="search-box">
-        <input v-model="searchKey.searchTitle" />
-        <input type="date" v-model="searchKey.searchStartDate" />
-        <input type="date" v-model="searchKey.searchEndDate" />
+        <input v-model.lazy="keyword" />
+        <input type="date" v-model="searchStartDate" />
+        <input type="date" v-model="searchEndDate" />
         <button @click="handlerSearch">검색</button>
-        <button>신규등록</button>
+        <button @click="() => modalState.setModalState()">신규등록</button>
     </div>
 </template>
 <script setup>
-const injectedValue = inject('providedValue');
-const searchKey = ref({});
+import router from '@/router';
+import { useModalStore } from '@/stores/modalState';
+
+const modalState = useModalStore();
+const keyword = ref('');
+const searchStartDate = ref('');
+const searchEndDate = ref('');
 
 const handlerSearch = () => {
-    injectedValue.value = { ...searchKey.value };
+    const query = [];
+    !keyword.value || query.push(`searchTitle=${keyword.value}`);
+    !searchStartDate.value || query.push(`searchStDate=${searchStartDate.value}`);
+    !searchEndDate.value || query.push(`searchEdDate=${searchEndDate.value}`);
+    const queryString = query.length > 0 ? `?${query.join('&')}` : '';
+
+    router.push(queryString);
 };
+watchEffect(() => window.location.search && router.push(window.location.pathname, { replace: true }));
 </script>
 
 <style lang="scss" scoped>

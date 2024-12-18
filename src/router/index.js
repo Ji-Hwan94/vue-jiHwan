@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login/Login.vue';
 import DashBoard from '../views/DashBoard/DashBoard.vue';
 import Notice from '../views/Board/Notice.vue';
+import NoticeDetail from '../components/page/Board/Notice/NoticeDetail.vue';
 const routes = [
     {
         path: '/',
@@ -21,6 +22,11 @@ const routes = [
                         path: 'notice.do',
                         name: 'notice',
                         component: Notice,
+                    },
+                    {
+                        path: 'notice.do/:idx',
+                        name: 'noticeDetail',
+                        component: NoticeDetail,
                     },
                 ],
             },
